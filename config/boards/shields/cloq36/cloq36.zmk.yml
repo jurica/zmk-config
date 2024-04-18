@@ -1,0 +1,10 @@
+file_format: "1"
+id: cloq36
+name: cloq36
+type: shield
+url: https://github.com/jurica/cloq36
+requires: [pro_micro]
+exposes: [i2c_oled]
+features:
+  - keys
+  - display

@@ -1,0 +1,283 @@
+/*
+ * Copyright (c) 2024 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/keys.h>
+
+#define L_AS 0
+#define L_NO_AS 1
+#define L_NUMBERS 2
+#define L_FUNC 3
+#define L_BT 4
+#define L_MAC_UML 5
+#define L_WIN_UML 6
+
+#define AS(keycode) &as LS(keycode) keycode
+
+#define TK30 &mt LGUI ESC
+#define TK31 &kp SPC
+#define TK32 &mt LCTRL TAB
+#define TK33 &mt LALT ENTER
+#define TK34 &mo L_NUMBERS
+#define TK35 &lt L_FUNC BSPC
+
+
+&caps_word {
+    continue-list = <UNDERSCORE MINUS BSPC>;
+};
+
+/*                KEY POSITIONS
+  ╭────────────────────╮ ╭────────────────────╮
+  │  0   1   2   3   4 │ │  5   6   7   8   9 │
+  │ 10  11  12  13  14 │ │ 15  16  17  18  19 │
+  │ 20  21  22  23  24 │ │ 25  26  27  28  29 │
+  ╰───────╮ 30  31  32 │ │ 33  34  35 ╭───────╯
+          ╰────────────╯ ╰────────────╯        */
+
+/ {
+    combos {
+        compatible = "zmk,combos";
+        combo_bt {
+            key-positions = <9 19 29>;
+            bindings = <&mo L_BT>;
+        };
+        combo_ae {
+            key-positions = <10 20>;
+            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
+        };
+        combo_ue {
+            key-positions = <6 16>;
+            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
+        };
+        combo_oe {
+            key-positions = <8 18>;
+            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
+        };
+        combo_sz {
+            key-positions = <11 21>;
+            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
+        };
+        combo_caps_word {
+            key-positions = <30 35>;
+            bindings = <&caps_word>;
+        };
+        combo_meh {
+            key-positions = <32 33>;
+            bindings = <&kp LS(LC(LALT))>;
+        };
+        combo_lshift {
+            key-positions = <20 21>;
+            bindings = <&kp LSHIFT>;
+            slow-release;
+        };
+        combo_rshift {
+            key-positions = <28 29>;
+            bindings = <&kp RSHIFT>;
+            slow-release;
+        };
+    };
+
+    macros {
+        mac_ae: mac_ae {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp RALT>,
+                        <&macro_tap &kp A>;
+        };
+        mac_ae_cap: mac_ae_cap {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp RALT>,
+                        <&macro_press &kp LSHIFT>,
+                        <&macro_tap &kp A>,
+                        <&macro_release &kp LSHIFT>;
+        };
+        mac_ue: mac_ue {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp RALT>,
+                        <&macro_tap &kp U>;
+        };
+        mac_ue_cap: mac_ue_cap {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp RALT>,
+                        <&macro_press &kp LSHIFT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp LSHIFT>;
+        };
+        mac_oe: mac_oe {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp RALT>,
+                        <&macro_tap &kp O>;
+        };
+        mac_oe_cap: mac_oe_cap {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp U>,
+                        <&macro_release &kp RALT>,
+                        <&macro_press &kp LSHIFT>,
+                        <&macro_tap &kp O>,
+                        <&macro_release &kp LSHIFT>;
+        };
+        mac_sz: mac_sz {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp RALT>,
+                        <&macro_tap &kp S>,
+                        <&macro_release &kp RALT>;
+        };
+        win_ae: win_ae {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N1 &kp KP_N3 &kp KP_N2>,
+                        <&macro_release &kp LALT>;
+        };
+        win_ae_cap: win_ae_cap {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N1 &kp KP_N4 &kp KP_N2>,
+                        <&macro_release &kp LALT>;
+        };
+        win_ue: win_ue {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N1 &kp KP_N2 &kp KP_N9>,
+                        <&macro_release &kp LALT>;
+        };
+        win_ue_cap: win_ue_cap {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N1 &kp KP_N5 &kp KP_N4>,
+                        <&macro_release &kp LALT>;
+        };
+        win_oe: win_oe {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N1 &kp KP_N4 &kp KP_N8>,
+                        <&macro_release &kp LALT>;
+        };
+        win_oe_cap: win_oe_cap {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N1 &kp KP_N5 &kp KP_N3>,
+                        <&macro_release &kp LALT>;
+        };
+        win_sz: win_sz {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings =  <&macro_press &kp LALT>,
+                        <&macro_tap &kp KP_N2 &kp KP_N2 &kp KP_N5>,
+                        <&macro_release &kp LALT>;
+        };
+    };
+
+    behaviors {
+        as: auto_shift {
+            compatible = "zmk,behavior-hold-tap";
+            label = "AUTO_SHIFT";
+            #binding-cells = <2>;
+            tapping_term_ms = <200>;
+            quick_tap_ms = <0>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+        };
+        mtsl: mod_tap_sticky_layer {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            tapping_term_ms = <200>;
+            quick_tap_ms = <0>;
+            flavor = "tap-preferred";
+            bindings = <&sl>, <&sl>;
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+        default_layer {
+            label = "AS";
+            bindings = <
+    AS(Q) AS(W) AS(E) AS(R) AS(T)       AS(Y) AS(U)  AS(I)     AS(O)   AS(P)
+    AS(A) AS(S) AS(D) AS(F) AS(G)       AS(H) AS(J)  AS(K)     AS(L)   AS(SEMI)
+    AS(Z) AS(X) AS(C) AS(V) AS(B)       AS(N) AS(M)  AS(COMMA) AS(DOT) AS(FSLH)
+                TK30  TK31  TK32        TK33  TK34   TK35
+            >;
+        };
+        no_auto_shift {
+            label = "NoAS";
+            bindings = <
+    &kp Q &kp W &kp E &kp R &kp T       &kp Y &kp U  &kp I     &kp O   &kp P
+    &kp A &kp S &kp D &kp F &kp G       &kp H &kp J  &kp K     &kp L   &kp SEMI
+    &kp Z &kp X &kp C &kp V &kp B       &kp N &kp M  &kp COMMA &kp DOT &kp FSLH
+                &trans &trans &trans       &trans &trans &trans
+            >;
+        };
+        num_layer {
+            label = "Numbers";
+            bindings = <
+    AS(N1)    AS(N2)  AS(N3)     AS(N4)   AS(N5)         AS(N6)    AS(N7)    AS(N8)   AS(N9)    AS(N0)
+    AS(GRAVE) &kp TAB &none      &kp HOME &kp PG_UP      &kp LEFT  &kp DOWN  &kp UP   &kp RIGHT AS(SQT)
+    &kp LALT  &none   &none      &kp END  &kp PG_DN      AS(MINUS) AS(EQUAL) AS(LBKT) AS(RBKT)  AS(BSLH)
+                      &kp LGUI   &kp SPC  &kp TAB        &kp LALT  &none     &kp DEL
+            >;
+        };
+        function_layer {
+            label = "Func";
+            bindings = <
+    &kp F1     &kp F2      &kp F3 &kp F4 &kp F5          &kp F6 &kp F7 &kp F8  &kp F9  &kp LG(LS(N4))
+    &bt BT_NXT &to L_AS    &none  &none  &kp C_VOL_UP    &none  &none  &kp F10 &kp F11 &kp F12
+    &bt BT_PRV &to L_NO_AS &none  &none  &kp C_VOL_DN    &none  &none  &none   &none   &none
+                           &none  &none  &none           &none  &none  &none
+            >;
+        };
+        bt_layer {
+            label = "BT";
+            bindings = <
+    &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &bt BT_CLR  &none &none &none &none
+    &none        &none        &none        &none        &none        &none &none &none &none &none
+    &none        &none        &none        &none        &none        &none &none &none &none &none
+                              &none        &none        &none        &none &none &none
+            >;
+        };
+        mac_uml_layer {
+            label = "mac Uml";
+            bindings = <
+    &none &none &none   &none &none             &none &mac_ue_cap &none &mac_oe_cap &none
+    &mac_ae_cap &mac_sz &none &none &none       &none &mac_ue     &none &mac_oe     &none
+    &mac_ae     &mac_sz &none &none &none       &none &none       &none &none       &none
+                        &none &none &none       &none &none       &none
+            >;
+        };
+        win_uml_layer {
+            label = "Win Uml";
+            bindings = <
+    &none &none &none   &none &none             &none &win_ue_cap &none &win_oe_cap &none
+    &win_ae_cap &win_sz &none &none &none       &none &win_ue     &none &win_oe     &none
+    &win_ae     &win_sz &none &none &none       &none &none       &none &none       &none
+                        &none &none &none       &none &none       &none
+            >;
+        };
+	};
+};
