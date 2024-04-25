@@ -1,0 +1,14 @@
+file_format: "1"
+id: chocofi
+name: chocofi
+type: shield
+url: https://github.com/raeedcho/temper
+requires: [pro_micro]
+exposes: [i2c_oled]
+features:
+  - keys
+  - display
+  - underglow
+siblings:
+  - chocofi_left
+  - chocofi_right
