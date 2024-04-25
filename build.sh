@@ -17,6 +17,6 @@ for config in "${configs[@]}"; do
     board=$(echo "$config" | yq -r '.board')
     shield=$(echo "$config" | yq -r '.shield')
     keyboardName=$(echo "${shield}" | awk '{print $1}')
-    west build -d build/"${keyboardName}" -b "${board}" -- -DSHIELD=humla -DZMK_CONFIG="${scriptDir}"/config
+    west build -d build/"${keyboardName}" -b "${board}" -- -DSHIELD=${shield} -DZMK_CONFIG="${scriptDir}"/config
 done
 
