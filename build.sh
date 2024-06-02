@@ -1,13 +1,7 @@
 #!/bin/bash -eup
 
-if [[ "$#" -ne 1 ]]; then
-    echo "ERROR: wrong number of arguments given."
-    echo "Usage: ${0} <path to zmk app dir>"
-    exit 1
-fi
-
 scriptDir="$(dirname "$(realpath "${0}")")"
-zmkAppDir="$(realpath "${1}")"
+zmkAppDir="$(realpath "${scriptDir}/../zmk/app")"
 buildYamlFile="${scriptDir}/build.yaml"
 
 cd "${zmkAppDir}"
@@ -17,6 +11,6 @@ for config in "${configs[@]}"; do
     board=$(echo "$config" | yq -r '.board')
     shield=$(echo "$config" | yq -r '.shield')
     keyboardName=$(echo "${shield}" | awk '{print $1}')
-    west build -d build/"${keyboardName}" -b "${board}" -- -DSHIELD=${shield} -DZMK_CONFIG="${scriptDir}"/config
+    west build -p -d build/"${keyboardName}" -b "${board}" -- -DSHIELD="${shield}" -DZMK_CONFIG="${scriptDir}"/config
 done
 

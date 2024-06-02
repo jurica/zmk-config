@@ -10,11 +10,12 @@
 
 #define L_AS 0
 #define L_NO_AS 1
-#define L_NUMBERS 2
-#define L_FUNC 3
-#define L_BT 4
-#define L_MAC_UML 5
-#define L_WIN_UML 6
+#define L_GAME 2
+#define L_NUMBERS 3
+#define L_FUNC 4
+#define L_BT 5
+#define L_MAC_UML 6
+#define L_WIN_UML 7
 
 #define AS(keycode) &as LS(keycode) keycode
 
@@ -228,10 +229,19 @@
         no_auto_shift {
             label = "NoAS";
             bindings = <
-    &kp Q &kp W &kp E &kp R &kp T       &kp Y &kp U  &kp I     &kp O   &kp P
-    &kp A &kp S &kp D &kp F &kp G       &kp H &kp J  &kp K     &kp L   &kp SEMI
-    &kp Z &kp X &kp C &kp V &kp B       &kp N &kp M  &kp COMMA &kp DOT &kp FSLH
+    &kp Q &kp W &kp E  &kp R  &kp T        &kp Y &kp U  &kp I     &kp O   &kp P
+    &kp A &kp S &kp D  &kp F  &kp G        &kp H &kp J  &kp K     &kp L   &kp SEMI
+    &kp Z &kp X &kp C  &kp V  &kp B        &kp N &kp M  &kp COMMA &kp DOT &kp FSLH
                 &trans &trans &trans       &trans &trans &trans
+            >;
+        };
+        game {
+            label = "Game";
+            bindings = <
+    &kp LALT   &kp Q    &kp W   &kp E   &kp R       &kp Y  &kp U  &kp I     &kp O   &kp P
+    &kp LCTRL  &kp A    &kp S   &kp D   &kp F       &kp H  &kp J  &kp K     &kp L   &kp SEMI
+    &kp LSHIFT &kp Z    &kp X   &kp C   &kp V       &kp N  &kp M  &kp COMMA &kp DOT &kp FSLH
+                        &kp ESC &kp SPC &kp TAB     &trans &trans &trans
             >;
         };
         num_layer {
@@ -246,10 +256,10 @@
         function_layer {
             label = "Func";
             bindings = <
-    &kp F1     &kp F2      &kp F3    &kp F4    &kp F5          &kp F6 &kp F7 &kp F8  &kp F9  &kp LG(LS(N4))
-    &bt BT_NXT &to L_AS    &none     &none     &kp C_VOL_UP    &none  &none  &kp F10 &kp F11 &kp F12
-    &bt BT_PRV &to L_NO_AS &none     &none     &kp C_VOL_DN    &none  &none  &none   &none   &none
-                           &kp LALT  &kp LCTRL &none           &none  &none  &none
+    &kp F1 &kp F2 &kp F3   &kp F4    &kp F5            &kp F6   &kp F7      &kp F8     &kp F9  &kp LG(LS(N4))
+    &none  &none  &none    &none     &kp C_VOL_UP      &none    &none       &kp F10    &kp F11 &kp F12
+    &none  &none  &none    &none     &kp C_VOL_DN      &to L_AS &to L_NO_AS &to L_GAME &none   &none
+                  &kp LALT &kp LCTRL &none             &none    &none       &none
             >;
         };
         bt_layer {
