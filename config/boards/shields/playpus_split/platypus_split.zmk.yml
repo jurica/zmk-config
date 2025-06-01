@@ -1,0 +1,11 @@
+file_format: "1"
+id: platypus_split
+name: Platypus Split
+type: shield
+url: https://github.com/jurica/platypus
+requires: [seeeduino_xiao_ble]
+features:
+  - keys
+siblings:
+  - platypus_split_left
+  - platypus_split_right

@@ -1,0 +1,9 @@
+# Copyright (c) 2025 The ZMK Contributors
+# SPDX-License-Idertifier: MIT
+
+config SHIELD_PLATYPUS_SPLIT_LEFT
+    def_bool $(shields_list_contains,platypus_split_left)
+
+config SHIELD_PLATYPUS_SPLIT_RIGHT
+    def_bool $(shields_list_contains,platypus_split_right)
+
