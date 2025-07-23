@@ -15,8 +15,6 @@
 #define L_NUMBERS 3
 #define L_FUNC 4
 #define L_BT 5
-#define L_MAC_UML 6
-#define L_WIN_UML 7
 
 #define AS(keycode) &as LS(keycode) keycode
 
@@ -47,22 +45,6 @@
             key-positions = <9 19 29>;
             bindings = <&mo L_BT>;
         };
-        combo_ae {
-            key-positions = <10 20>;
-            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
-        };
-        combo_ue {
-            key-positions = <6 16>;
-            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
-        };
-        combo_oe {
-            key-positions = <8 18>;
-            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
-        };
-        combo_sz {
-            key-positions = <11 21>;
-            bindings = <&mtsl L_WIN_UML L_MAC_UML>;
-        };
         combo_caps_word {
             key-positions = <30 35>;
             bindings = <&caps_word>;
@@ -73,126 +55,23 @@
         };
         combo_lshift {
             key-positions = <20 21>;
-            bindings = <&kp LSHIFT>;
+            bindings = <&sk LSHIFT>;
             slow-release;
         };
         combo_rshift {
             key-positions = <28 29>;
-            bindings = <&kp RSHIFT>;
+            bindings = <&sk RSHIFT>;
             slow-release;
         };
-    };
-
-    macros {
-        mac_ae: mac_ae {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp RALT>,
-                        <&macro_tap &kp A>;
+        combo_laltgr {
+            key-positions = <0 1>;
+            bindings = <&sk RALT>;
+            slow-release;
         };
-        mac_ae_cap: mac_ae_cap {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp RALT>,
-                        <&macro_press &kp LSHIFT>,
-                        <&macro_tap &kp A>,
-                        <&macro_release &kp LSHIFT>;
-        };
-        mac_ue: mac_ue {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp RALT>,
-                        <&macro_tap &kp U>;
-        };
-        mac_ue_cap: mac_ue_cap {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp RALT>,
-                        <&macro_press &kp LSHIFT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp LSHIFT>;
-        };
-        mac_oe: mac_oe {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp RALT>,
-                        <&macro_tap &kp O>;
-        };
-        mac_oe_cap: mac_oe_cap {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp U>,
-                        <&macro_release &kp RALT>,
-                        <&macro_press &kp LSHIFT>,
-                        <&macro_tap &kp O>,
-                        <&macro_release &kp LSHIFT>;
-        };
-        mac_sz: mac_sz {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp RALT>,
-                        <&macro_tap &kp S>,
-                        <&macro_release &kp RALT>;
-        };
-        win_ae: win_ae {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N1 &kp KP_N3 &kp KP_N2>,
-                        <&macro_release &kp LALT>;
-        };
-        win_ae_cap: win_ae_cap {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N1 &kp KP_N4 &kp KP_N2>,
-                        <&macro_release &kp LALT>;
-        };
-        win_ue: win_ue {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N1 &kp KP_N2 &kp KP_N9>,
-                        <&macro_release &kp LALT>;
-        };
-        win_ue_cap: win_ue_cap {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N1 &kp KP_N5 &kp KP_N4>,
-                        <&macro_release &kp LALT>;
-        };
-        win_oe: win_oe {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N1 &kp KP_N4 &kp KP_N8>,
-                        <&macro_release &kp LALT>;
-        };
-        win_oe_cap: win_oe_cap {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N1 &kp KP_N5 &kp KP_N3>,
-                        <&macro_release &kp LALT>;
-        };
-        win_sz: win_sz {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings =  <&macro_press &kp LALT>,
-                        <&macro_tap &kp KP_N2 &kp KP_N2 &kp KP_N5>,
-                        <&macro_release &kp LALT>;
+        combo_raltgr {
+            key-positions = <8 9>;
+            bindings = <&sk RALT>;
+            slow-release;
         };
     };
 
@@ -205,14 +84,6 @@
             quick-tap-ms = <0>;
             flavor = "tap-preferred";
             bindings = <&kp>, <&kp>;
-        };
-        mtsl: mod_tap_sticky_layer {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            tapping_term_ms = <200>;
-            quick_tap_ms = <0>;
-            flavor = "tap-preferred";
-            bindings = <&sl>, <&sl>;
         };
     };
 
@@ -260,7 +131,7 @@
     &kp F1 &kp F2 &kp F3   &kp F4    &kp F5            &kp F6   &kp F7      &kp F8     &kp F9  &kp LG(LS(N4))
     &none  &none  &none    &none     &kp C_VOL_UP      &none    &none       &kp F10    &kp F11 &kp F12
     &none  &none  &none    &none     &kp C_VOL_DN      &to L_MOUSE &to L_AS &to L_AS &none   &none
-                  &kp LALT &kp LCTRL &none             &none    &none       &none
+                  &kp LALT &kp LCTRL &sk RALT          &none       &none    &none
             >;
         };
         bt_layer {
@@ -270,24 +141,6 @@
     &none        &none        &none        &none        &none        &none &none &none &none &none
     &none        &none        &none        &none        &none        &none &none &none &none &none
                               &none        &none        &none        &none &none &none
-            >;
-        };
-        mac_uml_layer {
-            display-name = "mac Uml";
-            bindings = <
-    &none &none &none   &none &none             &none &mac_ue_cap &none &mac_oe_cap &none
-    &mac_ae_cap &mac_sz &none &none &none       &none &mac_ue     &none &mac_oe     &none
-    &mac_ae     &mac_sz &none &none &none       &none &none       &none &none       &none
-                        &none &none &none       &none &none       &none
-            >;
-        };
-        win_uml_layer {
-            display-name = "Win Uml";
-            bindings = <
-    &none &none &none   &none &none             &none &win_ue_cap &none &win_oe_cap &none
-    &win_ae_cap &win_sz &none &none &none       &none &win_ue     &none &win_oe     &none
-    &win_ae     &win_sz &none &none &none       &none &none       &none &none       &none
-                        &none &none &none       &none &none       &none
             >;
         };
 	};
