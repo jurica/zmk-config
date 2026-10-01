@@ -12,3 +12,4 @@ features:
 siblings:
   - chocofi_left
   - chocofi_right
+  - chocofi_dongle
