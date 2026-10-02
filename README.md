@@ -21,3 +21,6 @@ west build -p -d build/chocofi_dongle -b nice_nano//zmk -- -DSHIELD="chocofi_don
 west build -p -d build/chocofi_peripheral_left -b nice_nano//zmk -- -DSHIELD="chocofi_left" -DZMK_CONFIG=/workspaces/zmk-config/config -DCONFIG_ZMK_SPLIT=y -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n
 west build -p -d build/chocofi_peripheral_right -b nice_nano//zmk -- -DSHIELD="chocofi_right" -DZMK_CONFIG=/workspaces/zmk-config/config -DCONFIG_ZMK_SPLIT=y -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n
 
+west build -p -d build/chocofi_dongle -b nice_nano//zmk -- -DSHIELD="chocofi_dongle dongle_display" -DZMK_CONFIG=/workspaces/zmk-config/config -DZMK_EXTRA_MODULES=/workspaces/zmk-config
+
+docker run --rm --workdir /workspaces/zmk/app -v /home/jb/Dev/kbd/zmk:/workspaces/zmk -v /home/jb/Dev/kbd/zmk-config:/workspaces/zmk-config zmk west build -p -d build/chocofi_dongle -b "nice_nano//zmk" -- -DSHIELD="chocofi_dongle dongle_display" -DZMK_CONFIG=/workspaces/zmk-config/config -DZMK_EXTRA_MODULES=/workspaces/zmk-config
