@@ -38,16 +38,18 @@ function target_names {
 }
 
 function usage {
-    echo "Usage: $(basename "$0") [-i] [target ...]"
+    echo "Usage: $(basename "$0") [target ...]"
     echo
-    echo "With no arguments, builds all targets. Otherwise builds only the named targets."
-    echo "With -i/--interactive, targets are picked from a checklist before building."
+    echo "With no target, targets are picked from an interactive checklist"
+    echo "(fzf if available, otherwise a numbered fallback list)."
+    echo "\"all\" is a special target that builds every target."
+    echo "Otherwise builds only the named targets."
     echo
     echo "Options:"
-    echo "  -i, --interactive  pick targets from a checklist before building"
     echo "  -h, --help         show this help"
     echo
     echo "Valid targets:"
+    echo "  all (special target: build everything)"
     target_names
 }
 
@@ -175,7 +177,6 @@ function build_one # zmkDir, zmkConfigDir, board, buildDir, shield, extraOpts
 
 # --- target selection ---
 
-interactive=0
 positional=()
 unknown_opts=()
 unknown=()
@@ -185,9 +186,6 @@ for arg in "$@"; do
         -h|--help)
             usage
             exit 0
-            ;;
-        -i|--interactive)
-            interactive=1
             ;;
         -*)
             unknown_opts+=("$arg")
@@ -207,17 +205,19 @@ fi
 
 selected=()
 
-if [[ $interactive -eq 1 ]]; then
+if [[ ${#positional[@]} -eq 0 ]]; then
+    # interactive is the default when no target is given
     select_targets_interactive selected
     if [[ ${#selected[@]} -eq 0 ]]; then
         echo "no targets selected, nothing to do."
         exit 0
     fi
-elif [[ ${#positional[@]} -eq 0 ]]; then
-    selected=("${targets[@]}")
 else
+    build_all=0
     for arg in "${positional[@]}"; do
-        if record=$(find_target "$arg"); then
+        if [[ $arg == "all" ]]; then
+            build_all=1
+        elif record=$(find_target "$arg"); then
             selected+=("$record")
         else
             unknown+=("$arg")
@@ -228,6 +228,9 @@ else
         echo >&2
         usage >&2
         exit 1
+    fi
+    if [[ $build_all -eq 1 ]]; then
+        selected=("${targets[@]}")
     fi
 fi
 
