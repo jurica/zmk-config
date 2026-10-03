@@ -38,9 +38,14 @@ function target_names {
 }
 
 function usage {
-    echo "Usage: $(basename "$0") [target ...]"
+    echo "Usage: $(basename "$0") [-i] [target ...]"
     echo
     echo "With no arguments, builds all targets. Otherwise builds only the named targets."
+    echo "With -i/--interactive, targets are picked from a checklist before building."
+    echo
+    echo "Options:"
+    echo "  -i, --interactive  pick targets from a checklist before building"
+    echo "  -h, --help         show this help"
     echo
     echo "Valid targets:"
     target_names
@@ -56,6 +61,98 @@ function find_target # name -> prints matching record, or returns 1
         fi
     done
     return 1
+}
+
+function select_targets_interactive # out array name -> fills it with selected records
+{
+    local -n out=$1
+    local names=() record name
+    for record in "${targets[@]}"; do
+        names+=("${record%%|*}")
+    done
+
+    if command -v fzf >/dev/null 2>&1; then
+        local picked
+        if ! picked=$(printf '%s\n' "${names[@]}" |
+            fzf --multi --prompt='build> ' --header='tab: toggle  enter: build  esc: cancel'); then
+            echo "cancelled." >&2
+            exit 130
+        fi
+        out=()
+        if [[ -n $picked ]]; then
+            while IFS= read -r name; do
+                record=$(find_target "$name")
+                out+=("$record")
+            done <<< "$picked"
+        fi
+        return 0
+    fi
+
+    # Fallback checklist for terminals without fzf
+    local total=${#targets[@]}
+    local checked=() i tok input msg=""
+    for ((i = 0; i < total; i++)); do
+        checked[i]=1
+    done
+
+    while true; do
+        if [[ -t 1 ]]; then
+            clear
+        fi
+        if [[ -n $msg ]]; then
+            echo "$msg"
+            echo
+        fi
+        echo "Select targets to build:"
+        for i in "${!targets[@]}"; do
+            if (( checked[i] )); then
+                echo "  [x] $((i + 1)) ${names[i]}"
+            else
+                echo "  [ ] $((i + 1)) ${names[i]}"
+            fi
+        done
+        echo
+        echo "toggle: numbers or ranges (e.g. 3, \"1 5\", \"2-4\") | a: all | n: none | enter: build | q: quit"
+        read -rp "selection> " input || exit 0
+        msg=""
+        case $input in
+            "") break ;;
+            q) exit 0 ;;
+            a)
+                for ((i = 0; i < total; i++)); do checked[i]=1; done
+                ;;
+            n)
+                for ((i = 0; i < total; i++)); do checked[i]=0; done
+                ;;
+            *)
+                for tok in $input; do
+                    if [[ $tok =~ ^([0-9]+)-([0-9]+)$ ]]; then
+                        local from=${BASH_REMATCH[1]} to=${BASH_REMATCH[2]} t
+                        for ((t = from; t <= to; t++)); do
+                            if (( t >= 1 && t <= total )); then
+                                checked[t-1]=$((1 - checked[t-1]))
+                            fi
+                        done
+                    elif [[ $tok =~ ^[0-9]+$ ]]; then
+                        if (( tok >= 1 && tok <= total )); then
+                            checked[tok-1]=$((1 - checked[tok-1]))
+                        else
+                            msg="no such target: $tok"
+                        fi
+                    else
+                        msg="ignored: $tok"
+                    fi
+                done
+                ;;
+        esac
+    done
+
+    out=()
+    for i in "${!targets[@]}"; do
+        if (( checked[i] )); then
+            out+=("${targets[i]}")
+        fi
+    done
 }
 
 function build_one # zmkDir, zmkConfigDir, board, buildDir, shield, extraOpts
@@ -78,19 +175,48 @@ function build_one # zmkDir, zmkConfigDir, board, buildDir, shield, extraOpts
 
 # --- target selection ---
 
+interactive=0
+positional=()
+unknown_opts=()
+unknown=()
+
+for arg in "$@"; do
+    case $arg in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -i|--interactive)
+            interactive=1
+            ;;
+        -*)
+            unknown_opts+=("$arg")
+            ;;
+        *)
+            positional+=("$arg")
+            ;;
+    esac
+done
+
+if [[ ${#unknown_opts[@]} -gt 0 ]]; then
+    echo "error: unknown option(s): ${unknown_opts[*]}" >&2
+    echo >&2
+    usage >&2
+    exit 1
+fi
+
 selected=()
 
-if [[ $# -eq 0 ]]; then
+if [[ $interactive -eq 1 ]]; then
+    select_targets_interactive selected
+    if [[ ${#selected[@]} -eq 0 ]]; then
+        echo "no targets selected, nothing to do."
+        exit 0
+    fi
+elif [[ ${#positional[@]} -eq 0 ]]; then
     selected=("${targets[@]}")
 else
-    unknown=()
-    for arg in "$@"; do
-        case $arg in
-            -h|--help)
-                usage
-                exit 0
-                ;;
-        esac
+    for arg in "${positional[@]}"; do
         if record=$(find_target "$arg"); then
             selected+=("$record")
         else
