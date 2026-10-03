@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) 2026 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#include "chocofi.dtsi"
+
+/ {
+    chosen {
+        zmk,kscan = &mock_kscan;
+        zephyr,display = &oled;
+    };
+
+    /* The dongle has no keys of its own; key events come from the peripherals. */
+    mock_kscan: mock_kscan {
+        compatible = "zmk,kscan-mock";
+        columns = <0>;
+        rows = <0>;
+        events = <0>;
+    };
+};
+
+/* kscan0's col-gpios are only defined in the per-side overlays; unused here. */
+&kscan0 {
+    status = "disabled";
+};
+
+/* nice!nano pro_micro I2C header: SDA = P0.17, SCL = P0.20 (board default pins) */
+&pro_micro_i2c {
+    status = "okay";
+
+    oled: sh1106@3c {
+        compatible = "sinowealth,sh1106";
+        reg = <0x3c>;
+        width = <128>;
+        height = <64>;
+        /* SH1106 RAM is 132 columns wide; the 128-col panel window starts at column 2.
+           A wrong offset shows up as white pixel columns at the edge of the screen. */
+        segment-offset = <2>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <63>;
+        segment-remap;
+        com-invdir;
+        inversion-on;
+        prechargep = <0x22>;
+    };
+};
