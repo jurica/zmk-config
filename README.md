@@ -10,9 +10,21 @@ My zmk-config's for my keyboards
 
 build.sh uses podman to build firmware in a container. It expects:
 - podman installed
-- a cloned and setup zmk repo in the parent folder (`../zmk`)
 
 Firmware files are output to `../dist`.
+
+### One-time setup
+
+Before the first build (and after changes to `config/west.yml`), set up the
+west workspace at `../zmk-workspace`. This creates the workspace from
+`config/west.yml` and fetches all projects (zmk, zephyr, modules) into it:
+
+```bash
+./build.sh setup
+```
+
+Everything west touches outside this repo lives in that single folder; it can
+be deleted and recreated with `./build.sh setup` at any time.
 
 ### Usage
 

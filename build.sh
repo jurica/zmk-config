@@ -1,8 +1,9 @@
 #!/bin/bash -eup
 
 zmkConfigDir="$(dirname "$(realpath "${0}")")"
-zmkDir="$(realpath "${zmkConfigDir}/../zmk")"
-distDir="$(realpath "${zmkConfigDir}/../dist")"
+parentDir="$(realpath "${zmkConfigDir}/..")"
+workspaceDir="$parentDir/zmk-workspace"
+distDir="$parentDir/dist"
 
 mkdir -p "$distDir"
 
@@ -38,7 +39,12 @@ function target_names {
 }
 
 function usage {
-    echo "Usage: $(basename "$0") [target ...]"
+    echo "Usage: $(basename "$0") setup | [target ...]"
+    echo
+    echo "'setup' is a one-time command that must be run before building:"
+    echo "it initializes the west workspace at $workspaceDir from"
+    echo "config/west.yml and fetches all projects (zmk, zephyr, modules)."
+    echo "Re-run it after changes to config/west.yml to re-sync the workspace."
     echo
     echo "With no target, targets are picked from an interactive checklist"
     echo "(fzf if available, otherwise a numbered fallback list)."
@@ -51,6 +57,27 @@ function usage {
     echo "Valid targets:"
     echo "  all (special target: build everything)"
     target_names
+}
+
+function run_container # runs west inside the build container in the workspace
+{
+    podman run --rm --workdir /workspaces \
+        -v "$workspaceDir":/workspaces \
+        -v "$zmkConfigDir":/workspaces/config \
+        zmk "$@"
+}
+
+function setup_workspace # one-time: create the west workspace and fetch all projects
+{
+    if [ ! -e "$workspaceDir/.west" ]; then
+        mkdir -p "$workspaceDir"
+        # --mf: west.yml lives in the config/ subdir of the repo, not at its root
+        run_container west init -l config --mf config/west.yml
+        run_container west config zephyr.base zephyr
+    else
+        echo "west workspace already initialized at $workspaceDir"
+    fi
+    run_container west update
 }
 
 function find_target # name -> prints matching record, or returns 1
@@ -157,22 +184,33 @@ function select_targets_interactive # out array name -> fills it with selected r
     done
 }
 
-function build_one # zmkDir, zmkConfigDir, board, buildDir, shield, extraOpts
+function banner # message
 {
-    zmkDir=$1
-    zmkConfigDir=$2
-    board=$3
-    buildDir=$4
-    shield=$5
+    local msg=$1
+    echo
+    printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    printf '  %s\n' "$msg"
+    printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+}
 
-    cmd="podman run --rm --workdir /workspaces/zmk/app -v $zmkDir:/workspaces/zmk -v $zmkConfigDir:/workspaces/zmk-config"
-    cmd+=" zmk west build -p -d build/$buildDir -b $board//zmk -- -DSHIELD=\"${shield}\" -DZMK_CONFIG=/workspaces/zmk-config/config -DZMK_EXTRA_MODULES=/workspaces/zmk-config"
-    if [[ -v 6 && -n $6 ]]; then
-        cmd+=" $6"
-    fi
+function build_one # board, buildDir, shield, extraOpts
+{
+    local board=$1 buildDir=$2 shield=$3 extraOpts=$4
 
-    eval "$cmd"
-    cp "$zmkDir/app/build/$buildDir/zephyr/zmk.uf2" "$distDir/$buildDir.uf2"
+    banner "🔨 Building firmware: $buildDir"
+
+    # Zephyr_DIR: zmk's app CMakeLists finds Zephyr via `HINTS ../zephyr` relative to
+    # its source dir, which assumes the zmk-repo-as-workspace-root layout. In our
+    # workspace zephyr is a sibling of zmk, so point cmake at it explicitly.
+    run_container west build -p -s zmk/app -d "build/$buildDir" -b "$board//zmk" -- \
+        -DSHIELD="$shield" \
+        -DZephyr_DIR=/workspaces/zephyr/share/zephyr-package/cmake \
+        -DZMK_CONFIG=/workspaces/config/config \
+        -DZMK_EXTRA_MODULES=/workspaces/config \
+        $extraOpts
+    cp "$workspaceDir/build/$buildDir/zephyr/zmk.uf2" "$distDir/$buildDir.uf2"
+
+    banner "✅ Firmware '$buildDir' built — $buildDir.uf2 copied to $distDir"
 }
 
 # --- target selection ---
@@ -205,6 +243,17 @@ fi
 
 selected=()
 
+if [[ ${#positional[@]} -eq 1 && "${positional[0]}" == "setup" ]]; then
+    setup_workspace
+    exit 0
+fi
+
+if [ ! -d "$workspaceDir/.west" ]; then
+    echo "error: west workspace not found at $workspaceDir" >&2
+    echo "run '$(basename "$0") setup' first." >&2
+    exit 1
+fi
+
 if [[ ${#positional[@]} -eq 0 ]]; then
     # interactive is the default when no target is given
     select_targets_interactive selected
@@ -236,6 +285,6 @@ fi
 
 for record in "${selected[@]}"; do
     IFS='|' read -r name board shield extra_opts <<< "$record"
-    build_one "$zmkDir" "$zmkConfigDir" "$board" "$name" "$shield" "$extra_opts"
+    build_one "$board" "$name" "$shield" "$extra_opts"
 done
 
