@@ -184,9 +184,20 @@ function select_targets_interactive # out array name -> fills it with selected r
     done
 }
 
+function banner # message
+{
+    local msg=$1
+    echo
+    printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    printf '  %s\n' "$msg"
+    printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+}
+
 function build_one # board, buildDir, shield, extraOpts
 {
     local board=$1 buildDir=$2 shield=$3 extraOpts=$4
+
+    banner "🔨 Building firmware: $buildDir"
 
     # Zephyr_DIR: zmk's app CMakeLists finds Zephyr via `HINTS ../zephyr` relative to
     # its source dir, which assumes the zmk-repo-as-workspace-root layout. In our
@@ -198,6 +209,8 @@ function build_one # board, buildDir, shield, extraOpts
         -DZMK_EXTRA_MODULES=/workspaces/config \
         $extraOpts
     cp "$workspaceDir/build/$buildDir/zephyr/zmk.uf2" "$distDir/$buildDir.uf2"
+
+    banner "✅ Firmware '$buildDir' built — $buildDir.uf2 copied to $distDir"
 }
 
 # --- target selection ---
