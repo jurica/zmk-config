@@ -4,8 +4,11 @@ zmkConfigDir="$(dirname "$(realpath "${0}")")"
 parentDir="$(realpath "${zmkConfigDir}/..")"
 workspaceDir="$parentDir/zmk-workspace"
 distDir="$parentDir/dist"
+logDir="$parentDir/log"
+runStamp="$(date +%Y%m%d-%H%M%S)"
+podmanImage="docker.io/zmkfirmware/zmk-dev-arm:4.1-branch"
 
-mkdir -p "$distDir"
+mkdir -p "$distDir" "$logDir"
 
 # Target registry: name|board|shield|extra_opts
 targets=(
@@ -64,7 +67,7 @@ function run_container # runs west inside the build container in the workspace
     podman run --rm --workdir /workspaces \
         -v "$workspaceDir":/workspaces \
         -v "$zmkConfigDir":/workspaces/config \
-        zmk "$@"
+        $podmanImage "$@"
 }
 
 function setup_workspace # one-time: create the west workspace and fetch all projects
@@ -193,24 +196,30 @@ function banner # message
     printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
 }
 
-function build_one # board, buildDir, shield, extraOpts
+function build_one # board, buildDir, shield, extraOpts, index, total, logFile
 {
-    local board=$1 buildDir=$2 shield=$3 extraOpts=$4
+    local board=$1 buildDir=$2 shield=$3 extraOpts=$4 idx=$5 total=$6 logFile=$7
 
-    banner "🔨 Building firmware: $buildDir"
+    printf '[%s/%s] building %s ... ' "$idx" "$total" "$buildDir"
+
+    local start=$SECONDS
 
     # Zephyr_DIR: zmk's app CMakeLists finds Zephyr via `HINTS ../zephyr` relative to
     # its source dir, which assumes the zmk-repo-as-workspace-root layout. In our
     # workspace zephyr is a sibling of zmk, so point cmake at it explicitly.
-    run_container west build -p -s zmk/app -d "build/$buildDir" -b "$board//zmk" -- \
+    if ! run_container west build -p -s zmk/app -d "build/$buildDir" -b "$board//zmk" -- \
         -DSHIELD="$shield" \
         -DZephyr_DIR=/workspaces/zephyr/share/zephyr-package/cmake \
         -DZMK_CONFIG=/workspaces/config/config \
         -DZMK_EXTRA_MODULES=/workspaces/config \
-        $extraOpts
+        $extraOpts >"$logFile" 2>&1; then
+        printf '❌ failed — see %s\n' "$logFile" >&2
+        exit 1
+    fi
+
     cp "$workspaceDir/build/$buildDir/zephyr/zmk.uf2" "$distDir/$buildDir.uf2"
 
-    banner "✅ Firmware '$buildDir' built — $buildDir.uf2 copied to $distDir"
+    printf '✅ done (%s) — %s.uf2 copied to %s\n' "$((SECONDS - start))s" "$buildDir" "$distDir"
 }
 
 # --- target selection ---
@@ -283,8 +292,16 @@ else
     fi
 fi
 
+banner "🏗  Building ${#selected[@]} firmware(s) — full logs in $logDir"
+for record in "${selected[@]}"; do
+    printf '  %s\n' "${record%%|*}"
+done
+
+total=${#selected[@]}
+i=0
 for record in "${selected[@]}"; do
     IFS='|' read -r name board shield extra_opts <<< "$record"
-    build_one "$board" "$name" "$shield" "$extra_opts"
+    i=$((i + 1))
+    build_one "$board" "$name" "$shield" "$extra_opts" "$i" "$total" "$logDir/${runStamp}_${name}.log"
 done
 

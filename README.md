@@ -15,6 +15,9 @@ Firmware files are output to `../dist`.
 
 ### One-time setup
 
+> [!IMPORTANT]
+> The build image is configured in build.sh, see podmanImage. It has to match zmks [default](https://github.com/zmkfirmware/zmk/blob/main/.devcontainer/Dockerfile).
+
 Before the first build (and after changes to `config/west.yml`), set up the
 west workspace at `../zmk-workspace`. This creates the workspace from
 `config/west.yml` and fetches all projects (zmk, zephyr, modules) into it:
